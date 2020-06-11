@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sponsor Sign Up Form</title>
+    <link rel="shortcut icon" type="image/ico" href="https://www.harrowschool.ac.th/uploaded/favicon_Harrow.ico"/>
+
+    <style type="text/css">
+        #workingMsg {
+            color: black;
+            background: #fff;
+            padding: 10px;
+            position: fixed;
+            border-radius:10px;
+            top: 40%;
+            left: 30%;
+            z-index: 100;
+            margin-right: -25%;
+            margin-bottom: -25%;
+        }
+        #prepare {
+            background: black;
+            z-index: 99;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+            filter: alpha(opacity=80);
+            -moz-opacity: 0.8;
+            -khtml-opacity: 0.8;
+            opacity: 0.8;
+        }
+
+    </style>
+
+    <style>
+        html *
+        {
+            color: #000 !important;
+            font-family: "Helvetica Neue",serif !important;
+        }
+        .singleLineBox {
+            border:0.5px solid #b3b3b3;
+            background: #ffffff;
+            width:200px;
+            height: 25px;
+            border-radius:5px;
+            -moz-border-radius:5px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+        }
+
+
+        .submitButton {
+            transition-duration: 0.4s;
+            background-color: rgb(255, 255, 255);
+            color: white;
+            padding: 10px 10px;
+            text-align: center;
+            border-radius:10px;
+            -moz-border-radius:10px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+            text-decoration: none;
+            display: inline-block;
+            width: 90px;
+            height: 50px;
+            border: 3px solid #4CAF50;
+            font-size: 16px;
+            font-family: "Helvetica Neue", serif;
+        }
+
+        .submitButton:hover {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        .submitButton:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+
+        .footerOne {
+            font-family: "Helvetica Neue",serif;
+            font-size: 10px;
+            font-style: oblique;
+            line-height: 0.8px;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+        }
+
+        .footerTwo {
+            font-family: "Helvetica Neue",serif;
+            font-size: 10px;
+            font-style: oblique;
+            line-height: 0.8px;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+
+<!-- Form Structure -->
+
+<form onsubmit="submitForm();return false">
+    <h2>Contact Information</h2>
+
+
+    <h4>Company Name</h4>
+    <label>
+        <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="singleLineBox" id="compName" required>
+    </label>
+
+    <h4>Email</h4>
+    <label>
+        <input type="email" name="email" class="singleLineBox" id="contactEmail" autocomplete="username" required>
+    </label>
+
+    <h4>Phone Number</h4>
+    <label>
+        <input type="tel" autocomplete="phone" name="phone" pattern="([0-9]{9,10})|(\+[0-9]{10,11})" class="singleLineBox" id="phone" required>
+    </label>
+
+    <h4>Sponsor Amount (THB)</h4>
+    <label>
+        <input type="number" name="amount" min="10000" max="1000000" class="singleLineBox" title="Minimum amount is 10000THB" id="sponsor" required>
+    </label>
+
+    <h2>Company Logo</h2>
+    <h6>This will be put in the Year 13's year book</h6>
+
+    <label>
+        <input type="file" name="logo" id="logoPicker" required>
+    </label>
+
+    <p></p>
+
+    <input type="submit" class="submitButton" value="Submit">
+
+
+
+</form>
+
+
+<!-- Script -->
+
+<script>
+
+    async function submitForm() {
+        let files = document.getElementById("logoPicker").files;
+        console.log(files.length);
+        if (files.length === 0 || files.length === undefined) {
+            alert("You must upload an image!");
+            return false
+        } else if (files.length > 1) {
+            alert("You cannot upload more than 1 image!");
+            return false
+        }
+        await uploadToFirebaseStorage();
+        return false
+    }
+
+    function getTextValue(forId) {
+        return document.getElementById(forId).value
+    }
+
+    async function saveData(imageLink, userID) {
+        document.getElementById('workingMsg').innerHTML = "Saving Data...";
+
+        let company_name = getTextValue("compName");
+        let company_email = getTextValue("contactEmail");
+        let company_phone = getTextValue("phone");
+        let sponsor_amount = getTextValue("sponsor");
+
+        let updateData = {
+            companyName: company_name,
+            contactEmail: company_email,
+            contactPhone: company_phone,
+            sponsorAmount: sponsor_amount,
+            imageLink: imageLink
+        };
+        console.log(updateData);
+        console.log(userID);
+        db.collection("sponsors").doc(userID).set({updateData}).then(function() {
+            console.log("Document successfully written!");
+            finish()
+        }).catch(function(error) {
+            fatalError(error);
+            console.error("Error writing document: ", error);
+        });
+    }
+
+
+    function makeUID(length) {
+        let result           = '';
+        let characters       = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let charactersLength = characters.length;
+        for ( let i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+
+    async function uploadToFirebaseStorage() {
+        showLoading();
+        let storageRef = storage.ref();
+        let userID = makeUID(10);
+        let folderRef = storageRef.child("@Sponsors").child(userID);
+
+        let imagePicker = document.getElementById("logoPicker");
+        let files = imagePicker.files;
+        let uploaded = 0;
+        let imageURLs = [];
+        for (let iterator = 0; iterator < files.length; iterator++) {
+            let file = files[iterator];
+            let fileType = file.name.split('.').pop();
+            if (fileType.toLowerCase() === "jpg" || fileType.toLowerCase() === "jpeg" || fileType.toLowerCase() === "png" || fileType.toLowerCase() === "heic" || fileType.toLowerCase() === "heif") {
+                let uid = makeUID(6);
+                let prefix = document.getElementById("compName").value.split(" ")[0];
+                let saveName = prefix + uid + "." + fileType;
+                console.log(saveName);
+                console.log(file);
+                let ref = folderRef.child(saveName);
+                await ref.put(file).then(async function (snapshot) {
+                    document.getElementById('workingMsg').innerHTML = "Uploaded " + file.name + " (" + (uploaded + 1).toString() + "/" + files.length.toString() + ")";
+                    console.log('Uploaded a file!');
+                    imageURLs.push(await ref.getDownloadURL());
+                    uploaded += 1
+                });
+            } else {
+                console.log(file.name + " is not a supported image type!");
+                uploaded += 1
+            }
+        }
+        let timer = setInterval(function () {
+            asyncCheck(uploaded, files.length, imageURLs, userID, timer);
+        }, 500);
+    }
+
+    async function asyncCheck(current, target, url, userID, timer) {
+        if (current === target) {
+            clearInterval(timer);
+            await saveData(url, userID)
+        }
+    }
+
+
+</script>
+
+
+
+<!-- Importing modules -->
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+
+
+
+<!-- Firebase Integration -->
+
+<script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyCG-goxOTyS0ZkPEVW4YAJM8FRBqVm2YAU",
+        authDomain: "prom-b3bc9.firebaseapp.com",
+        databaseURL: "https://prom-b3bc9.firebaseio.com",
+        projectId: "prom-b3bc9",
+        storageBucket: "prom-b3bc9.appspot.com",
+        messagingSenderId: "624396100758",
+        appId: "1:624396100758:web:a911152f561f9a062bceb7",
+        measurementId: "G-TGLL9TNHJC"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    var storage = firebase.storage();
+    var db = firebase.firestore();
+</script>
+
+
+<div id='workingMsg' style='  display: none;'>Uploading Image...</div>
+<div id='prepare' style='display: none;'></div>
+
+
+<script>
+    function showLoading() {
+        document.getElementById('prepare').style.display = 'block';
+        document.getElementById('workingMsg').style.display = 'block';
+    }
+
+    function finish() {
+        document.write("<h2>Saved Successfully</h2><p>Thank you for filling in the form, we will get in contact with you shortly</p>")
+    }
+
+    function fatalError(errorValue) {
+        document.write("<h2>Fatal Error</h2><p>Fatal Error Occurred. Your response has not been saved! Contact the admin for more details: " + errorValue + "</p>")
+    }
+</script>
+
+
+<p class="footerOne" align="right"> Copyright © 2020 Pakkapol Lailert, All Rights Reserved</p>
+<p class="footerTwo" align="right"> Sponsor Sign Up Form, Version: 1.0.3. Published: 8 Feb 2020 12:30 UTC</p>
+
+</body>
+
+
+</html>
+

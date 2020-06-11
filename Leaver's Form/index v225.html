@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leavers' Book Data Collection</title>
+    <link rel="shortcut icon" type="image/ico" href="https://www.harrowschool.ac.th/uploaded/favicon_Harrow.ico"/>
+
+    <style type="text/css">
+        #uploadingMsg {
+            color: black;
+            background: #fff;
+            padding: 10px;
+            position: fixed;
+            border-radius:10px;
+            top: 40%;
+            left: 30%;
+            z-index: 100;
+            margin-right: -25%;
+            margin-bottom: -25%;
+        }
+        #prepare {
+            background: black;
+            z-index: 99;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+            filter: alpha(opacity=80);
+            -moz-opacity: 0.8;
+            -khtml-opacity: 0.8;
+            opacity: 0.8;
+        }
+
+    </style>
+
+    <style>
+        html *
+        {
+            color: #000 !important;
+            font-family: "Helvetica Neue",serif !important;
+        }
+        .singleLineBox {
+            border:0.5px solid #b3b3b3;
+            background: #ffffff;
+            width:200px;
+            height: 25px;
+            border-radius:5px;
+            -moz-border-radius:5px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+        }
+
+        .multiLineBox {
+            border:0.5px solid #b3b3b3;
+            background: #ffffff;
+            width:400px;
+            height: 100px;
+            border-radius:5px;
+            font-size: 12px;
+            -moz-border-radius:5px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+            resize: none;
+        }
+
+        .advSelection {
+            border:0.5px solid #b3b3b3;
+            background: #ffffff;
+            width:150px;
+            height: 20px;
+            border-radius:5px;
+            -moz-border-radius:5px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+        }
+
+        .submitButton {
+            transition-duration: 0.4s;
+            background-color: rgb(255, 255, 255);
+            color: white;
+            padding: 10px 10px;
+            text-align: center;
+            border-radius:10px;
+            -moz-border-radius:10px;
+            -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+            -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+            box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+            text-decoration: none;
+            display: inline-block;
+            width: 90px;
+            height: 50px;
+            border: 3px solid #4CAF50;
+            font-size: 16px;
+            font-family: "Helvetica Neue", serif;
+        }
+
+        .submitButton:hover {
+            background-color: #4CAF50; /* Green */
+            color: white;
+        }
+
+        .submitButton:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+
+        .adBanner {
+            background-color: transparent;
+            height: 1px;
+            width: 1px;
+        }
+
+        .spoilerToggle {
+            line-height: 2px;
+            font-size: 12px;
+        }
+
+        .titleWithDescription {
+            line-height: 0.8px;
+        }
+
+        .description {
+            line-height: 0.8px;
+            font-style: normal !important;
+            font-weight: 400 !important;
+        }
+
+
+        .footer {
+            font-family: "Helvetica Neue",serif;
+            font-size: 10px;
+            font-style: oblique;
+            line-height: 0.8px;
+        }
+
+    </style>
+
+
+</head>
+<body onload="toggleHide()">
+
+
+<!-- Importing modules -->
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+
+
+
+<!-- Firebase Integration -->
+
+<script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyCG-goxOTyS0ZkPEVW4YAJM8FRBqVm2YAU",
+        authDomain: "prom-b3bc9.firebaseapp.com",
+        databaseURL: "https://prom-b3bc9.firebaseio.com",
+        projectId: "prom-b3bc9",
+        storageBucket: "prom-b3bc9.appspot.com",
+        messagingSenderId: "624396100758",
+        appId: "1:624396100758:web:a911152f561f9a062bceb7",
+        measurementId: "G-TGLL9TNHJC"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    var storage = firebase.storage();
+    var db = firebase.firestore();
+
+
+</script>
+
+
+<script>
+    let listOfNames = ['Admin', 'Aim Ruangpattana', 'All Ruangkanchanasetr', 'Andy Jittarat', 'Angelina Lim', 'Anna Boscher', 'Annabel Jennings-Chick', 'Arm Tubtimthongchai', 'Bambi Kiatanant', 'Ben Anivat', 'Brew Piyawalaluck', 'Brian Chung', 'Bun Dhitavat', 'Cesar Chunharatchapan', 'Chada Lovisuth', 'Copter Sesavej', 'Copter Sriworakun', 'Danial Yahaya', 'Dol Jutasompakorn', 'Erika Laungjessadakun', 'Farhan Ali', 'Fern Bulakul', 'Finlay Prout', 'Frame Hiransrisoontorn', 'Guy Kaewsringam', 'Henry To', 'Ike Bodhidatta', 'Ingke Samranyoo', 'Jaehwan Kim', 'Jeffy Chotiwitsavaitkul', 'Sunny Park', 'Josh Lingham', 'Jun Suh', 'Kaopod Ladavalya', 'Ken Kuwabara', 'Ken Synsukpermpoon', 'Kent Masters', 'Knight Ponghathaikul', 'Krit Somboon', 'Lala Somsuwansak', 'Lavik Hour', 'Mai Kitcharoenwong', 'March Bunluesak', 'Max Prasertsan', 'May Aurluecha', 'May Viratikul', 'Memee Jirapojaphorn', 'Minnie Putamadilok', 'Momo Ota', 'Nene Chaipornvadee', 'Nikko Juengsophonvitavas', 'Nont Phucharoenyos', 'Oak Chivatxaranukul', 'Pang Sukhee', 'Pat Charnvirakul', 'Pear Masathienvong', 'Pear Punsri', 'Perry Sato', 'Peter Niramitsiripong', 'Pham Deevilaiphan', 'Phukhao Poolsawat', 'Piam Fuang-Arom', 'Pike Amornchat', 'Ploy Surasingtothong', 'Pony Karnplumchit', 'Pooh Makingrilas', 'Poom Kecharananta', 'Prae Vichaidith', 'Prance Thongyai Na Ayudhaya', 'Prem Sirisuttinunt', 'Primmy Titipunya', 'Proud Kitnichiva', 'Pun Kamthornthip', 'Punpun Sukanonsawas', 'Ray Supornsahusrungsi', 'Ruby Qu', 'Sea Chanchaiwwichai', 'Serene Boonnasitha', 'Steph Hoffmann', 'Sweety Moe', 'Tang-Tai Petsuksomvilai', 'Temmy Luangtana-anan', 'Thomas Laohapornsvan', 'Thund Owarang', 'Tim Vichit-vadakan', 'Tong Pramoj', 'Trey Chaney', 'Un-Un Visukamol',  'William Wollmann'].sort();
+    if (firebase === undefined) {
+        alert("A content blocker is detected on your browser, this will cause the form to malfunction. Please disable content blocker before you continue.");
+        document.getElementById("submitID").style.display = "none";
+    }
+</script>
+
+
+<!-- UI -->
+
+<form onsubmit="prepare();return false">
+
+    <h2>General</h2>
+
+
+    <h4 class="titleWithDescription">Name and Lastname</h4>
+    <h6 class="description">(Matches school email name)</h6>
+
+    <label>
+        <input type="text" autocomplete="name" autocapitalize="off" spellcheck="false" class="singleLineBox" id="nameField" required>
+    </label>
+
+    <p></p>
+    <a id="spoilerToggle" class="spoilerToggle" href="#" onclick="toggleHide()" >My name doesn't match school name (?)</a>
+
+    <div id="spoiler">
+        <h4 class="titleWithDescription">Preferred Name</h4>
+        <h6 class="description">If your email name doesn't match the name you would like to be used in the leavers' book, please fill in the preferred name below. Preferred name must contain both your nickname and last name</h6>
+        <label for="preferredName"></label><input type="text" autocomplete="name" autocapitalize="off" spellcheck="false" class="singleLineBox" id="preferredName">
+    </div>
+
+
+    <script>
+        function toggleHide() {
+            let x = document.getElementById("spoiler");
+            let y = document.getElementById("spoilerToggle");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                y.innerText = "My name matches school email name (Hide Field)";
+            } else {
+                x.style.display = "none";
+                y.innerText = "My name doesn't match school email name (?)";
+            }
+        }
+    </script>
+
+
+    <h4>Other names(what people call you, comma-separated)</h4>
+
+    <label>
+        <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" class="singleLineBox" id="otherName" required>
+    </label>
+
+    <p></p>
+
+    <h4>House</h4>
+    <label for="houseSelector"></label><select class="advSelection" id="houseSelector" required>
+        <option value="e">-Select One-</option>
+        <option value="B">Byron</option>
+        <option value="So">Sonakul</option>
+        <option value="C">Churchill</option>
+        <option value="N">Nehru</option>
+        <option value="K">Keller</option>
+        <option value="S">Suriyothai</option>
+    </select>
+
+    <h4>Instagram Username</h4>
+    <label>
+        <input type="text" autocomplete="username" autocorrect="off" autocapitalize="off" spellcheck="false" class="singleLineBox" id="instagram" required>
+    </label>
+
+    <p></p>
+
+    <h4>What will you miss the most about Harrow?</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="missText" required></textarea>
+    </label>
+
+    <p></p>
+
+
+    <h4>What was your most embarrassing moment?</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="embarrassing" required></textarea>
+    </label>
+
+    <p></p>
+
+    <h4>What was your best excuse for not doing homework?</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="excuse" required></textarea>
+    </label>
+
+    <p></p>
+
+    <h4>Any advice for your younger self?</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="advice" required></textarea>
+    </label>
+
+    <p></p>
+
+    <h4>What was the highlight of your senior year?</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="highlight" required></textarea>
+    </label>
+
+    <p></p>
+
+    <h4>Senior Quote (in English):</h4>
+    <label>
+        <textarea class="multiLineBox" rows="4" id="snrQuote" required></textarea>
+    </label>
+
+    <p></p>
+
+    <!-- ImagePicker -->
+
+    <h2>Pictures</h2>
+    <p>Choose one to ten photos, supports jpg, png and heic.</p>
+    <label>
+        <input type="file" name="logo" id="imgPicker" multiple="true" required>
+    </label>
+
+
+
+    <p></p>
+
+
+    <h2>Most likely to...</h2>
+    <h5>For this section, type after you click the drop down box to search names.</h5>
+
+    <p></p>
+
+    <label for="selectOne">be Instagram famous : </label><select class="advSelection" id="selectOne" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectTwo">get married first : </label><select class="advSelection" id="selectTwo" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectThree">travel the world : </label><select class="advSelection" id="selectThree" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectFour">be president : </label><select class="advSelection" id="selectFour" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectTwelve">skip university classes : </label><select class="advSelection" id="selectTwelve" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectSixteen">become a billionaire (without parents' help) : </label><select class="advSelection" id="selectSixteen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectSeventeen">get arrested : </label><select class="advSelection" id="selectSeventeen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectEighteen">flirt their way out of a parking ticket : </label><select class="advSelection" id="selectEighteen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+
+
+
+    <h2>Superlatives</h2>
+    <h5>For this section, type after you click the drop down box to search names.</h5>
+
+    <p></p>
+
+    <label for="selectFive">Best dressed: </label><select class="advSelection" id="selectFive" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectSix">Best bromance: </label><select class="advSelection" id="selectSix" required>
+        <option value="e">-Select A Name-</option>
+        <option value="everyone">Everyone</option>
+    </select>
+
+    <label for="selectSeven"> and </label><select class="advSelection" id="selectSeven" required>
+        <option value="e">-Select A Name-</option>
+        <option value="everyone">Everyone</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectEight">Best womance: </label><select class="advSelection" id="selectEight" required>
+        <option value="e">-Select A Name-</option>
+        <option value="everyone">Everyone</option>
+    </select>
+
+    <label for="selectNine"></label> and <select class="advSelection" id="selectNine" required>
+        <option value="e">-Select A Name-</option>
+        <option value="everyone">Everyone</option>
+    </select>
+
+
+    <p></p>
+
+    <label for="selectThirteen">Best couple (High school sweetheart): </label><select class="advSelection" id="selectThirteen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+
+    <label for="selectFourteen"> and </label><select class="advSelection" id="selectFourteen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectTen">Best smile: </label><select class="advSelection" id="selectTen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectEleven">Class clown: </label><select class="advSelection" id="selectEleven" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <label for="selectFifteen">Heart-breaker: </label><select class="advSelection" id="selectFifteen" required>
+        <option value="e">-Select A Name-</option>
+    </select>
+
+    <p></p>
+
+    <input type="submit" value="Submit" class="submitButton">
+
+</form>
+
+
+<script>
+    function addNameOptions(forElement) {
+        let selector = document.getElementById(forElement);
+        console.log(listOfNames);
+        for (let i = 0; i < listOfNames.length; i++) {
+            let eachName = listOfNames[i];
+            var el = document.createElement("option");
+            el.textContent = eachName;
+            el.value = eachName;
+            selector.appendChild(el);
+        }
+    }
+
+    addNameOptions("selectOne");
+    addNameOptions("selectTwo");
+    addNameOptions("selectThree");
+    addNameOptions("selectFour");
+    addNameOptions("selectFive");
+    addNameOptions("selectSix");
+    addNameOptions("selectSeven");
+    addNameOptions("selectEight");
+    addNameOptions("selectNine");
+    addNameOptions("selectTen");
+    addNameOptions("selectEleven");
+    addNameOptions("selectTwelve");
+    addNameOptions("selectThirteen");
+    addNameOptions("selectFourteen");
+    addNameOptions("selectFifteen");
+    addNameOptions("selectSixteen");
+    addNameOptions("selectSeventeen");
+    addNameOptions("selectEighteen");
+</script>
+
+
+
+
+<!-- Submission -->
+
+
+
+<h1>
+    <script type="text/javascript">
+
+        let nameField = document.getElementById("nameField");
+        let preferredNameField = document.getElementById("preferredName");
+        let altNameField = document.getElementById("otherName");
+        let igAccField = document.getElementById("instagram");
+
+
+        let missField = document.getElementById("missText");
+        let embarrassingField = document.getElementById("embarrassing");
+        let hwkField = document.getElementById("excuse");
+        let adviceField = document.getElementById("advice");
+        let highlightField = document.getElementById("highlight");
+        let quoteField = document.getElementById("snrQuote");
+        let imagePicker = document.getElementById("imgPicker");
+
+
+        async function prepare() {
+
+
+            //Validation Check
+            let name = nameField.value;
+            let nameExists = false;
+
+            if (await nameAlreadyExists(name.toLowerCase())) {
+                nameExists = true;
+                alert("You have already submitted the form, your response will be updated but your votes will not be registered.")
+            }
+
+            if (!listOfNames.map(v => v.toLowerCase()).includes(name.toLowerCase())) {
+                alert("Check that you spelled your name correctly! The name field should match what is shown when others receive your school email (Your name was not recognised)");
+                return
+            }
+
+            let allElements = document.getElementsByTagName("*");
+
+            for (var i=0; i<allElements.length; i++) {
+                let currentElement = allElements[i];
+                if (currentElement.nodeName === "INPUT" || currentElement.nodeName === "TEXTAREA") {
+                    if (currentElement.value === "") {
+                        alert("You cannot leave any field empty!");
+                        return
+                    }
+                } else if (currentElement.nodeName === "SELECT") {
+                    if (currentElement.selectedIndex === 0) {
+                        alert("You cannot leave any field empty!");
+                        return
+                    }
+                }
+            }
+
+            showLoading();
+
+
+            //Upload then save data
+            await uploadToFirebaseStorage(nameExists);
+
+        }
+
+        async function saveData(imageLinks) {
+            document.getElementById('uploadingMsg').innerHTML = "Saving Data and Placing Votes...";
+
+            let name = nameField.value;
+            let preferredName = preferredNameField.value;
+            let otherName = altNameField.value;
+            let igAcc = igAccField.value;
+
+
+            let miss = missField.value;
+            let embarassing = embarrassingField.value;
+            let excuse = hwkField.value;
+            let advice = adviceField.value;
+            let highlight = highlightField.value;
+            let quote = quoteField.value;
+
+            if (imageLinks.length === 0){
+                console.log("Image Not Uploaded!");
+                fatalError("No valid file attached");
+                return
+            }
+
+            let date = new Date();
+            console.log(date);
+
+            //Get house
+            let housePicker = document.getElementById("houseSelector");
+            let house = housePicker.options[housePicker.selectedIndex].value;
+
+            //Form and save data
+            console.log(imageLinks.values);
+            let updateData = {
+                name: name,
+                prefName: preferredName,
+                house: house,
+                otherName: otherName,
+                igAcc: igAcc,
+                missText: miss,
+                embarrassingText: embarassing,
+                excuseText: excuse,
+                adviceText:advice,
+                highlightText: highlight,
+                snrQuote: quote,
+                imageLinks: imageLinks,
+                date: date
+            };
+            console.log(updateData);
+
+            db.collection("requests").doc("client-students").set({requiresUpdate: true});
+
+            db.collection("students").doc(name.toLowerCase()).set({updateData}).then(function() {
+                console.log("Document successfully written!");
+                hideLoad()
+            }).catch(function(error) {
+                fatalError(error);
+                console.error("Error writing document: ", error);
+            });
+        }
+
+        function sortTwoNames(nameOne, nameTwo){
+            let nameArray = [nameOne, nameTwo];
+            let sortedNameArray = nameArray.sort();
+            return sortedNameArray[0] + " + " + sortedNameArray[1]
+        }
+
+        function getValue(element){
+            return document.getElementById(element).options[document.getElementById(element).selectedIndex].value
+        }
+
+        async function saveVotes() {
+            await saveVoteFor("igFamous", getValue("selectOne"));
+            await saveVoteFor("married", getValue("selectTwo"));
+            await saveVoteFor("president",  getValue("selectThree"));
+            await saveVoteFor("travelTheWorld",  getValue("selectFour"));
+            await saveVoteFor("bestDressed",  getValue("selectFive"));
+            await saveVoteFor("bestBromance", sortTwoNames(getValue("selectSix"),  getValue("selectSeven")));
+            await saveVoteFor("bestWomance",  sortTwoNames(getValue("selectEight"),  getValue("selectNine")));
+            await saveVoteFor("bestSmile", getValue("selectTen"));
+            await saveVoteFor("classClown", getValue("selectEleven"));
+            await saveVoteFor("skipUni", getValue("selectTwelve"));
+            await saveVoteFor("bestCouple", sortTwoNames(getValue("selectThirteen"),  getValue("selectFourteen")));
+            await saveVoteFor("heartBreaker", getValue("selectFifteen"));
+            await saveVoteFor("billionaire", getValue("selectSixteen"));
+            await saveVoteFor("arrested", getValue("selectSeventeen"));
+            await saveVoteFor("flirt", getValue("selectEighteen"));
+        }
+
+        async function saveVoteFor(topic, name) {
+            console.log("Saving " + name + " for " + topic);
+            var docRef = db.collection("vote").doc(topic);
+
+            docRef.get().then(function(doc) {
+                if (doc.exists) {
+                    if (doc.data()[name] === undefined) {
+                        let updateData = {};
+                        updateData[name] = 1;
+                        docRef.set(updateData, { merge: true });
+                    } else {
+                        let updateData = {};
+                        updateData[name] = doc.data()[name] + 1;
+                        docRef.set(updateData, { merge: true });
+                    }
+                }
+            }).catch(function(error) {
+                fatalError(error);
+                console.log("Error getting document:", error);
+            });
+        }
+
+        async function nameAlreadyExists(userName) {
+            var documentNames = [];
+            await firebase.firestore().collection('students').get().then(querySnapshot => {
+                querySnapshot.docs.forEach(doc => {
+                    documentNames.push(doc.id);
+                });
+            });
+            console.log(documentNames);
+            return documentNames.includes(userName)
+        }
+    </script>
+</h1>
+
+
+<!-- Uploading Images -->
+
+<script>
+    function makeImageUID(length) {
+        var result           = '';
+        var characters       = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+
+    async function uploadToFirebaseStorage(nameExists) {
+        //Clear Files
+        let storageRef = storage.ref();
+        let uniqueName = nameField.value.replace(" ", "").split(" ").pop();
+        let folderRef = storageRef.child(uniqueName);
+        folderRef.delete().then(function() {
+            console.log("Cleared Existing File")
+        }).catch(function(error) {
+            console.log("Failed to clear existing files!")
+        });
+
+
+        let files = imagePicker.files;
+        console.log(files.length);
+        if (files.length === 0 || files.length === undefined) {
+            alert("You must at least choose 1 image!");
+            return
+        } else if (files.length > 10) {
+            alert("You cannot upload more than 10 images!");
+            return
+        }
+        var uploaded = 0;
+        var imageURLs = [];
+        for (var iterator = 0; iterator < files.length; iterator++) {
+            let file = files[iterator];
+            let fileType = file.name.split('.').pop();
+            if (fileType.toLowerCase() === "jpg" || fileType.toLowerCase() === "jpeg" || fileType.toLowerCase() === "png" || fileType.toLowerCase() === "heic" || fileType.toLowerCase() === "heif") {
+                let uid = makeImageUID(6);
+                let prefix = nameField.value.split(" ")[0];
+                let saveName = prefix + uid + "." + fileType;
+                console.log(saveName);
+                console.log(file);
+                let ref = folderRef.child(saveName);
+                await ref.put(file).then(async function (snapshot) {
+                    document.getElementById('uploadingMsg').innerHTML = "Uploaded " + file.name + " (" + (uploaded + 1).toString() + "/" + files.length.toString() + ")";
+                    console.log('Uploaded a file!');
+                    imageURLs.push(await ref.getDownloadURL());
+                    uploaded += 1
+                });
+            } else {
+                console.log(file.name + " is not a supported image type!");
+                uploaded += 1
+            }
+        }
+        let timer = setInterval(function() { asyncCheck(uploaded, files.length, imageURLs, timer, nameExists); }, 500);
+    }
+
+
+
+    async function asyncCheck(current, target, urls, timer, nameExists) {
+        if (current === target) {
+            clearInterval(timer);
+            console.log(urls);
+            if (nameExists) {
+                console.log("Not saving votes.");
+                await saveData(urls);
+            } else {
+                console.log("Saving Votes");
+                await saveData(urls);
+                await saveVotes();
+            }
+        }
+    }
+</script>
+
+
+
+<!-- Advanced UI DONT TOUCH -->
+
+<div id='uploadingMsg' style='  display: none;'>Uploading Images... (This may take a some time depending on file size)</div>
+<div id='prepare' style='display: none;'></div>
+
+
+<script>
+    function showLoading() {
+        document.getElementById('prepare').style.display = 'block';
+        document.getElementById('uploadingMsg').style.display = 'block';
+    }
+
+    function hideLoad() {
+        document.write("<h2>Saved Successfully</h2><p>Thank you for filling in the form, your response has been saved.</p>")
+    }
+
+    function fatalError(errorValue) {
+        document.write("<h2>Fatal Error</h2><p>Fatal Error Occurred. Your response has not been saved! Contact the admin for more details: " + errorValue + "</p>")
+    }
+</script>
+
+
+<p class="footer" align="right"> Copyright © 2020 Pakkapol Lailert, All Rights Reserved</p>
+<p class="footer" align="right"> Leavers' Book Form, Version: 2.2.5. Build 122 Published: 24 Feb 2020 13:56 UTC</p>
+
+
+
+
+</body>
+</html>

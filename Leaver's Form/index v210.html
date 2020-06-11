@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leavers' Book Data Collection</title>
+</head>
+<body>
+
+
+<style>
+    html *
+    {
+        color: #000 !important;
+        font-family: "Helvetica Neue",serif !important;
+    }
+    .singleLineBox {
+        border:0.5px solid #b3b3b3;
+        background: #ffffff;
+        width:200px;
+        height: 25px;
+        border-radius:5px;
+        -moz-border-radius:5px;
+        -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+        -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+        box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+    }
+
+    .multiLineBox {
+        border:0.5px solid #b3b3b3;
+        background: #ffffff;
+        width:400px;
+        height: 100px;
+        border-radius:5px;
+        font-size: 12px;
+        -moz-border-radius:5px;
+        -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+        -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+        box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+    }
+
+    .advSelection {
+        border:0.5px solid #b3b3b3;
+        background: #ffffff;
+        width:150px;
+        height: 20px;
+        border-radius:5px;
+        -moz-border-radius:5px;
+        -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+        -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+        box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+    }
+
+    .submitButton {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        padding: 10px 10px;
+        text-align: center;
+        border-radius:10px;
+        -moz-border-radius:10px;
+        -moz-box-shadow:    0.3px 0.3px 0.3px #ccc;
+        -webkit-box-shadow: 0.3px 0.3px 0.3px 0.3px #ccc;
+        box-shadow:         0.3px 0.3px 0.3px 0.3px #ccc;
+        text-decoration: none;
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        border: 1px none gray;
+        font-size: 16px;
+        font-family: "Helvetica Neue", serif;
+    }
+
+    .adBanner {
+        background-color: transparent;
+        height: 1px;
+        width: 1px;
+    }
+
+    .footer {
+        font-family: "Helvetica Neue",serif;
+        font-size: 10px;
+        font-style: oblique;
+        line-height: 0.8px;
+    }
+
+</style>
+
+
+<div id="wrapAdTest">
+    <div class="adBanner">
+    </div>
+</div>
+
+
+<!-- Importing modules -->
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-firestore.js"></script>
+
+
+
+<!-- Firebase Integration -->
+
+<script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyCG-goxOTyS0ZkPEVW4YAJM8FRBqVm2YAU",
+        authDomain: "prom-b3bc9.firebaseapp.com",
+        databaseURL: "https://prom-b3bc9.firebaseio.com",
+        projectId: "prom-b3bc9",
+        storageBucket: "prom-b3bc9.appspot.com",
+        messagingSenderId: "624396100758",
+        appId: "1:624396100758:web:a911152f561f9a062bceb7",
+        measurementId: "G-TGLL9TNHJC"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    var storage = firebase.storage();
+    var db = firebase.firestore();
+
+
+</script>
+
+
+<script>
+    let listOfNames = ['Aim Ruangpattana', 'All Ruangkanchanasetr', 'Andy Jittarat', 'Angelina Lim', 'Anna Boscher', 'Annabel Jennings-Chick', 'Arm Tubtimthongchai', 'Bambi Kiatanant', 'Ben Anivat', 'Brew Piyawalaluck', 'Brian Chung', 'Bun Dhitavat', 'Cesar Chunharatchapan', 'Chada Lovisuth', 'Copter Sesavej', 'Copter Sriworakun', 'Danial Yahaya', 'Dol Jutasompakorn', 'Erika Laungjessadakun', 'Farhan Ali', 'Fern Bulakul', 'Finlay Prout', 'Frame Hiransrisoontorn', 'Guy Kaewsringam', 'Henry To', 'Ike Bodhidatta', 'Ingke Samranyoo', 'Jaehwan Kim', 'Jeffy Chotiwitsavaitkul', 'Sunny Park', 'Josh Lingham', 'Jun Suh', 'Kaopod Ladavalya', 'Ken Kuwabara', 'Ken Synsukpermpoon', 'Kent Masters', 'Knight Ponghathaikul', 'Krit Somboon', 'Lala Somsuwansak', 'Lavik Hour', 'Mai Kitcharoenwong', 'March Bunluesak', 'Max Prasertsan', 'May Aurluecha', 'May Viratikul', 'Memee Jirapojaphorn', 'Minnie Putamadilok', 'Momo Ota', 'Nene Chaipornvadee', 'Nikko Juengsophonvitavas', 'Nont Phucharoenyos', 'Oak Chivatxaranukul', 'Pang Sukhee', 'Pat Charnvirakul', 'Pear Masathienvong', 'Pear Punsri', 'Perry Sato', 'Peter Niramitsiripong', 'Pham Deevilaiphan', 'Phukhao Poolsawat', 'Piam Fuang-Arom', 'Pike Amornchat', 'Ploy Surasingtothong', 'Pony Karnplumchit', 'Pooh Makingrilas', 'Poom Kecharananta', 'Prae Vichaidith', 'Prance Thongyai Na Ayudhaya', 'Prem Sirisuttinunt', 'Primmy Titipunya', 'Proud Kitnichiva', 'Pun Kamthornthip', 'Punpun Sukanonsawas', 'Ray Supornsahusrungsi', 'Ruby Qu', 'Sea Chanchaiwwichai', 'Serene Boonnasitha', 'Steph Hoffmann', 'Sweety Moe', 'Tang-Tai Petsuksomvilai', 'Temmy Luangtana-anan', 'Thomas Laohapornsvan', 'Thund Owarang', 'Tim Vichit-vadakan', 'Tong Pramoj', 'Trey Chaney', 'Un-Un Visukamol',  'William Wollmann'].sort();
+    if (firebase === undefined) {
+        alert("A content blocker is detected on your browser, this will cause the form to malfunction. Please disable content blocker before you continue.");
+        document.getElementById("submitID").style.display = "none";
+    }
+</script>
+
+
+
+<!-- UI -->
+
+<h2>General</h2>
+
+
+<h4>Nickname and Lastname</h4>
+<script>
+    let nameField = document.createElement("INPUT");
+    nameField.setAttribute("type", "text");
+    nameField.className = "singleLineBox";
+    document.body.appendChild(nameField);
+</script>
+
+<h4>Other names(what people call you, comma-separated)</h4>
+<script>
+    let altNameField = document.createElement("INPUT");
+    altNameField.setAttribute("type", "text");
+    altNameField.className = "singleLineBox";
+    document.body.appendChild(altNameField);
+</script>
+
+<p></p>
+
+<h4>House</h4>
+<select class="advSelection" id="houseSelector">
+    <option value="e">-Select One-</option>
+    <option value="B">Byron</option>
+    <option value="So">Sonakul</option>
+    <option value="C">Churchill</option>
+    <option value="N">Nehru</option>
+    <option value="K">Keller</option>
+    <option value="S">Suriyothai</option>
+</select>
+
+<h4>Instagram Username</h4>
+<script>
+    let igAccField = document.createElement("INPUT");
+    igAccField.setAttribute("type", "text");
+    igAccField.className = "singleLineBox";
+    document.body.appendChild(igAccField);
+</script>
+
+<p></p>
+
+<h4>What will you miss the most about Harrow?</h4>
+<script>
+    let missField = document.createElement("TEXTAREA");
+    missField.setAttribute("type", "text");
+    missField.className = "multiLineBox";
+    missField.setAttribute("rows", "4");
+    document.body.appendChild(missField);
+</script>
+
+<p></p>
+
+<h4>What was your most embarrassing moment?</h4>
+<script>
+    let embarrassingField = document.createElement("TEXTAREA");
+    embarrassingField.setAttribute("type", "text");
+    embarrassingField.className = "multiLineBox";
+    document.body.appendChild(embarrassingField);
+</script>
+
+<p></p>
+
+<h4>What was your best excuse for not doing homework?</h4>
+<script>
+    let hwkField = document.createElement("TEXTAREA");
+    hwkField.setAttribute("type", "text");
+    hwkField.className = "multiLineBox";
+    document.body.appendChild(hwkField);
+</script>
+
+<p></p>
+
+<h4>Any advice for your younger self?</h4>
+<script>
+    let adviceField = document.createElement("TEXTAREA");
+    adviceField.setAttribute("type", "text");
+    adviceField.className = "multiLineBox";
+    document.body.appendChild(adviceField);
+</script>
+
+<p></p>
+
+<h4>What was the highlight of your senior year?</h4>
+<script>
+    let highlightField = document.createElement("TEXTAREA");
+    highlightField.setAttribute("type", "text");
+    highlightField.className = "multiLineBox";
+    document.body.appendChild(highlightField);
+</script>
+
+<p></p>
+
+<h4>Senior Quote (in English):</h4>
+<script>
+    let quoteField = document.createElement("TEXTAREA");
+    quoteField.setAttribute("type", "text");
+    quoteField.className = "multiLineBox";
+    document.body.appendChild(quoteField);
+</script>
+
+<p></p>
+
+<!-- ImagePicker -->
+
+<h2>Pictures</h2>
+<p>Choose one to ten photos, supports jpg, png and heic.</p>
+<script>
+    let imagePicker = document.createElement("INPUT");
+    imagePicker.setAttribute("id", "imageUploader");
+    imagePicker.setAttribute("type", "file");
+    imagePicker.setAttribute("multiple", true);
+    document.body.appendChild(imagePicker);
+</script>
+
+
+<p></p>
+
+
+<p></p>
+
+
+<h2>Most likely to...</h2>
+<h5>For this section, type after you click the drop down box to search names.</h5>
+
+<p></p>
+
+be Instagram famous :
+
+<select class="advSelection" id="selectOne">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p></p>
+
+get married first :
+
+<select class="advSelection" id="selectTwo">
+    <option value="e">-Select A Name-</option>
+</select>
+
+
+<p></p>
+
+travel the world :
+
+<select class="advSelection" id="selectThree">
+    <option value="e">-Select A Name-</option>
+</select>
+
+
+<p></p>
+
+be president :
+
+<select class="advSelection" id="selectFour">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p></p>
+
+skip university classes :
+
+<select class="advSelection" id="selectTwelve">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p></p>
+
+become a billionaire (without parents' help) :
+
+<select class="advSelection" id="selectSixteen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p></p>
+
+get arrested :
+
+<select class="advSelection" id="selectSeventeen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p></p>
+
+flirt their way out of a parking ticket :
+
+<select class="advSelection" id="selectEighteen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+
+
+
+<h2>Superlatives</h2>
+<h5>For this section, type after you click the drop down box to search names.</h5>
+
+<p>Best dressed:</p>
+
+<select class="advSelection" id="selectFive">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p>Best bromance: </p>
+
+<select class="advSelection" id="selectSix">
+    <option value="e">-Select A Name-</option>
+    <option value="everyone">Everyone</option>
+</select>
+
+and
+
+<select class="advSelection" id="selectSeven">
+    <option value="e">-Select A Name-</option>
+    <option value="everyone">Everyone</option>
+</select>
+
+
+<p>Best womance: </p>
+
+<select class="advSelection" id="selectEight">
+    <option value="e">-Select A Name-</option>
+    <option value="everyone">Everyone</option>
+</select>
+
+and
+
+<select class="advSelection" id="selectNine">
+    <option value="e">-Select A Name-</option>
+    <option value="everyone">Everyone</option>
+</select>
+
+
+<p>Best couple (High school sweetheart): </p>
+
+<select class="advSelection" id="selectThirteen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+and
+
+<select class="advSelection" id="selectFourteen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+
+<p>Best smile: </p>
+
+<select class="advSelection" id="selectTen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p>Class clown: </p>
+
+<select class="advSelection" id="selectEleven">
+    <option value="e">-Select A Name-</option>
+</select>
+
+<p>Heart-breaker: </p>
+
+<select class="advSelection" id="selectFifteen">
+    <option value="e">-Select A Name-</option>
+</select>
+
+
+
+
+<script>
+    function addNameOptions(forElement) {
+        var selector = document.getElementById(forElement);
+        console.log(listOfNames);
+        for (var i = 0; i < listOfNames.length; i++) {
+            let eachName = listOfNames[i];
+            var el = document.createElement("option");
+            el.textContent = eachName;
+            el.value = eachName;
+            selector.appendChild(el);
+        }
+    }
+
+    addNameOptions("selectOne");
+    addNameOptions("selectTwo");
+    addNameOptions("selectThree");
+    addNameOptions("selectFour");
+    addNameOptions("selectFive");
+    addNameOptions("selectSix");
+    addNameOptions("selectSeven");
+    addNameOptions("selectEight");
+    addNameOptions("selectNine");
+    addNameOptions("selectTen");
+    addNameOptions("selectEleven");
+    addNameOptions("selectTwelve");
+    addNameOptions("selectThirteen");
+    addNameOptions("selectFourteen");
+    addNameOptions("selectFifteen");
+    addNameOptions("selectSixteen");
+    addNameOptions("selectSeventeen");
+    addNameOptions("selectEighteen");
+</script>
+
+
+<p></p>
+
+<button id="submitID" onclick="prepare()" class="submitButton">Submit</button>
+
+
+
+<!-- Submission -->
+
+
+
+<h1>
+    <script type="text/javascript">
+
+
+        async function prepare() {
+
+
+            //Validation Check
+            let name = nameField.value;
+
+            if (await nameAlreadyExists(name.toLowerCase())) {
+                alert("You have already submitted the form, your response will be updated but your votes will not be registered.")
+            }
+
+            if (!listOfNames.map(v => v.toLowerCase()).includes(name.toLowerCase())) {
+                alert("Check that you spelled your name correctly! The name field should match the school's email name (Your name was not recognised)");
+                return
+            }
+
+            let allElements = document.getElementsByTagName("*");
+
+            for (var i=0; i<allElements.length; i++) {
+                let currentElement = allElements[i];
+                if (currentElement.nodeName === "INPUT" || currentElement.nodeName === "TEXTAREA") {
+                    if (currentElement.value === "") {
+                        alert("You cannot leave any field empty!");
+                        return
+                    }
+                } else if (currentElement.nodeName === "SELECT") {
+                    if (currentElement.selectedIndex === 0) {
+                        alert("You cannot leave any field empty!");
+                        return
+                    }
+                }
+            }
+
+            showLoading();
+
+
+            //Upload then save data
+            await uploadToFirebaseStorage();
+
+        }
+
+        async function saveData(imageLinks) {
+            showSave();
+
+            let name = nameField.value;
+            let otherName = altNameField.value;
+            let igAcc = igAccField.value;
+
+
+            let miss = missField.value;
+            let embarassing = embarrassingField.value;
+            let excuse = hwkField.value;
+            let advice = adviceField.value;
+            let highlight = highlightField.value;
+            let quote = quoteField.value;
+
+            if (imageLinks.length === 0){
+                console.log("Image Not Uploaded!");
+                fatalError("No valid file attached");
+                return
+            }
+
+            //Get house
+            let housePicker = document.getElementById("houseSelector");
+            let house = housePicker.options[housePicker.selectedIndex].value;
+
+            //Form and save data
+            console.log(imageLinks.values);
+            let updateData = {
+                name: name,
+                house: house,
+                otherName: otherName,
+                igAcc: igAcc,
+                missText: miss,
+                embarrassingText: embarassing,
+                excuseText: excuse,
+                adviceText:advice,
+                highlightText: highlight,
+                snrQuote: quote,
+                imageLinks: imageLinks};
+            console.log(updateData);
+            db.collection("students").doc(name.toLowerCase()).set({updateData}).then(function() {
+                console.log("Document successfully written!");
+                hideLoad()
+            }).catch(function(error) {
+                fatalError(error);
+                console.error("Error writing document: ", error);
+            });
+        }
+
+        function sortTwoNames(nameOne, nameTwo){
+            let nameArray = [nameOne, nameTwo];
+            let sortedNameArray = nameArray.sort();
+            return sortedNameArray[0] + " + " + sortedNameArray[1]
+        }
+
+        function getValue(element){
+            return document.getElementById(element).options[document.getElementById(element).selectedIndex].value
+        }
+
+        async function saveVotes() {
+            await saveVoteFor("igFamous", getValue("selectOne"));
+            await saveVoteFor("married", getValue("selectTwo"));
+            await saveVoteFor("president",  getValue("selectThree"));
+            await saveVoteFor("travelTheWorld",  getValue("selectFour"));
+            await saveVoteFor("bestDressed",  getValue("selectFive"));
+            await saveVoteFor("bestBromance", sortTwoNames(getValue("selectSix"),  getValue("selectSeven")));
+            await saveVoteFor("bestWomance",  sortTwoNames(getValue("selectEight"),  getValue("selectNine")));
+            await saveVoteFor("bestSmile", getValue("selectTen"));
+            await saveVoteFor("classClown", getValue("selectEleven"));
+            await saveVoteFor("skipUni", getValue("selectTwelve"));
+            await saveVoteFor("bestCouple", sortTwoNames(getValue("selectThirteen"),  getValue("selectFourteen")));
+            await saveVoteFor("heartBreaker", getValue("selectFifteen"));
+            await saveVoteFor("billionaire", getValue("selectSixteen"));
+            await saveVoteFor("arrested", getValue("selectSeventeen"));
+            await saveVoteFor("flirt", getValue("selectEighteen"));
+        }
+
+        async function saveVoteFor(topic, name) {
+            console.log("Saving " + name + " for " + topic);
+            var docRef = db.collection("vote").doc(topic);
+
+            docRef.get().then(function(doc) {
+                if (doc.exists) {
+                    if (doc.data()[name] === undefined) {
+                        let updateData = {};
+                        updateData[name] = 1;
+                        docRef.set(updateData, { merge: true });
+                    } else {
+                        let updateData = {};
+                        updateData[name] = doc.data()[name] + 1;
+                        docRef.set(updateData, { merge: true });
+                    }
+                }
+            }).catch(function(error) {
+                fatalError(error);
+                console.log("Error getting document:", error);
+            });
+        }
+
+        async function nameAlreadyExists(userName) {
+            var documentNames = [];
+            await firebase.firestore().collection('students').get().then(querySnapshot => {
+                querySnapshot.docs.forEach(doc => {
+                    documentNames.push(doc.id);
+                });
+            });
+            console.log(documentNames);
+            return documentNames.includes(userName)
+        }
+    </script>
+</h1>
+
+
+<!-- Uploading Images -->
+
+<script>
+    function makeImageUID(length) {
+        var result           = '';
+        var characters       = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+
+    async function uploadToFirebaseStorage() {
+        //Clear Files
+        let storageRef = storage.ref();
+        let uniqueName = nameField.value.replace(" ", "").split(" ").pop();
+        let folderRef = storageRef.child(uniqueName);
+        folderRef.delete().then(function() {
+            console.log("Cleared Existing File")
+        }).catch(function(error) {
+            console.log("Failed to clear existing files!")
+        });
+
+
+        let files = imagePicker.files;
+        console.log(files.length);
+        if (files.length === 0 || files.length === undefined) {
+            alert("You must at least choose 1 image!");
+            return
+        } else if (files.length > 10) {
+            alert("You cannot upload more than 10 images!");
+            return
+        }
+        var uploaded = 0;
+        var imageURLs = [];
+        for (var iterator = 0; iterator < files.length; iterator++) {
+            let file = files[iterator];
+            let fileType = file.name.split('.').pop();
+            if (fileType.toLowerCase() === "jpg" || fileType.toLowerCase() === "jpeg" || fileType.toLowerCase() === "png" || fileType.toLowerCase() === "heic" || fileType.toLowerCase() === "heif") {
+                let uid = makeImageUID(6);
+                let prefix = nameField.value.split(" ")[0];
+                let saveName = prefix + uid + "." + fileType;
+                console.log(saveName);
+                console.log(file);
+                let ref = folderRef.child(saveName);
+                await ref.put(file).then(async function (snapshot) {
+                    document.getElementById('uploadingMsg').innerHTML = "Uploaded " + file.name + " (" + (uploaded + 1).toString() + "/" + files.length.toString() + ")";
+                    console.log('Uploaded a file!');
+                    imageURLs.push(await ref.getDownloadURL());
+                    uploaded += 1
+                });
+            } else {
+                console.log(file.name + " is not a supported image type!");
+                uploaded += 1
+            }
+        }
+        let timer = setInterval(function() { asyncCheck(uploaded, files.length, imageURLs, timer); }, 500);
+    }
+
+
+
+    async function asyncCheck(current, target, urls, timer) {
+        if (current === target) {
+            clearInterval(timer);
+            console.log(urls);
+            await saveData(urls);
+            if (await nameAlreadyExists(name.toLowerCase())) {
+                console.log("Not saving votes.")
+            } else {
+                console.log("Saving Votes");
+                await saveVotes();
+            }
+        }
+    }
+</script>
+
+
+
+<!-- Advanced UI DONT TOUCH -->
+
+<style type="text/css">
+    #uploadingMsg {
+        color: black;
+        background: #fff;
+        padding: 10px;
+        position: fixed;
+        border-radius:10px;
+        top: 40%;
+        left: 30%;
+        z-index: 100;
+        margin-right: -25%;
+        margin-bottom: -25%;
+    }
+    #savingData {
+        color: black;
+        background: #fff;
+        padding: 10px;
+        position: fixed;
+        border-radius:10px;
+        top: 40%;
+        left: 40%;
+        z-index: 100;
+        margin-right: -25%;
+        margin-bottom: -25%;
+    }
+    #prepare {
+        background: black;
+        z-index: 99;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+        filter: alpha(opacity=80);
+        -moz-opacity: 0.8;
+        -khtml-opacity: 0.8;
+        opacity: 0.8;
+    }
+
+</style>
+
+<div id='uploadingMsg' style='  display: none;'>Uploading Images... (This may take a some time depending on file size)</div>
+<div id='savingData' style='display: none;'>Saving Data and Placing Votes...</div>
+<div id='prepare' style='display: none;'></div>
+
+</form>
+
+<script>
+    function showLoading() {
+        document.getElementById('prepare').style.display = 'block';
+        document.getElementById('uploadingMsg').style.display = 'block';
+    }
+
+    function showSave() {
+        document.getElementById('prepare').style.display = 'block';
+        document.getElementById('savingData').style.display = 'block';
+    }
+
+    function hideLoad() {
+        document.write("<h2>Saved Successfully</h2><p>Thank you for filling in the form, your response has been saved.</p>")
+    }
+
+    function fatalError(errorValue) {
+        document.write("<h2>Fatal Error</h2><p>Fatal Error Occurred. Your response has not been saved! Contact the admin for more details: " + errorValue + "</p>")
+    }
+</script>
+
+
+<p class="footer" align="right"> Copyright © 2020 Pakkapol Lailert, All Rights Reserved</p>
+<p class="footer" align="right"> Leavers' Book Form, Version: 2.1.3. Published: 29 Jan 2020 13:38 UTC</p>
+
+
+
+
+</body>
+</html>
